@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Star } from "lucide-react";
 
 interface Mensaje {
@@ -10,6 +10,7 @@ export default function Home() {
   const [mensaje, setMensaje] = useState("");
   const [conversacion, setConversacion] = useState<Mensaje[]>([]);
   const [cargando, setCargando] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   const enviarMensaje = async () => {
     if (!mensaje.trim()) return;
@@ -29,7 +30,7 @@ export default function Home() {
       const data = await res.json();
       const respuestaIA: Mensaje = {
         emisor: "ishana",
-        texto: data.respuesta || "Estoy aquí para ti, aunque no pude responder ahora.",
+        texto: data.respuesta || "Estoy aquí contigo, aunque no pude responder ahora.",
       };
       setConversacion(prev => [...prev, respuestaIA]);
     } catch (error) {
@@ -42,39 +43,54 @@ export default function Home() {
     }
   };
 
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [conversacion]);
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-indigo-100 via-white to-purple-100 flex flex-col items-center justify-center p-4">
-      <div className="bg-white shadow-2xl rounded-2xl max-w-2xl w-full p-6 border border-indigo-100">
-        <div className="flex justify-center mb-2">
-          <Star className="h-8 w-8 text-yellow-500 animate-bounce" />
+      <div className="bg-white shadow-lg rounded-xl max-w-md w-full h-[90vh] flex flex-col border border-indigo-100 overflow-hidden">
+        <div className="flex items-center justify-center p-3 border-b bg-indigo-50">
+          <Star className="h-6 w-6 text-yellow-500 animate-bounce mr-2" />
+          <h1 className="text-xl font-semibold text-indigo-700">Ishana</h1>
         </div>
-        <h1 className="text-3xl font-bold text-indigo-700 text-center">Ishana</h1>
-        <p className="text-center text-gray-600 italic mb-4">Tu guía espiritual. Comparte lo que sientes, estoy contigo.</p>
 
-        <div className="bg-indigo-50 p-4 rounded-lg h-96 overflow-y-auto mb-4 space-y-4">
+        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
           {conversacion.map((msg, idx) => (
-            <div key={idx} className={msg.emisor === "usuario" ? "text-right" : "text-left"}>
-              <div className={\`inline-block px-4 py-2 rounded-lg \${msg.emisor === "usuario" ? "bg-indigo-200 text-indigo-900" : "bg-white border text-indigo-800"}\`}>
+            <div
+              key={idx}
+              className={`flex ${msg.emisor === "usuario" ? "justify-end" : "justify-start"}`}
+            >
+              <div
+                className={`rounded-lg px-4 py-2 text-sm shadow-sm max-w-[80%] ${
+                  msg.emisor === "usuario"
+                    ? "bg-indigo-600 text-white"
+                    : "bg-indigo-100 text-indigo-800"
+                }`}
+              >
                 {msg.texto}
               </div>
             </div>
           ))}
           {cargando && (
-            <div className="text-left text-indigo-600 italic">Ishana está reflexionando contigo...</div>
+            <div className="text-left text-indigo-500 italic">Ishana está reflexionando...</div>
           )}
+          <div ref={chatEndRef}></div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="p-3 border-t bg-white flex gap-2">
           <textarea
-            placeholder="Escribe lo que sientes o lo que estás viviendo..."
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none"
+            placeholder="Escribe tu mensaje..."
+            className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none text-sm"
             rows={2}
             value={mensaje}
             onChange={(e) => setMensaje(e.target.value)}
           />
           <button
             onClick={enviarMensaje}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50 text-sm"
             disabled={cargando}
           >
             Enviar
