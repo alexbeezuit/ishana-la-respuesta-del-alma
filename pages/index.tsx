@@ -4,30 +4,18 @@ import { Star } from "lucide-react";
 export default function Home() {
   const [pregunta, setPregunta] = useState("");
   const [respuesta, setRespuesta] = useState("");
-  const [cargando, setCargando] = useState(false);
 
-  const manejarEnvio = async () => {
+  const manejarEnvio = () => {
     if (!pregunta.trim()) return;
-
-    setCargando(true);
-    setRespuesta("");
-
-    try {
-      const res = await fetch("/api/ishana", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ pregunta }),
-      });
-
-      const data = await res.json();
-      setRespuesta(data.respuesta);
-    } catch (error) {
-      setRespuesta("Lo siento, no pude conectar con la sabiduría del alma.");
-    } finally {
-      setCargando(false);
-    }
+    const respuestasSimuladas = [
+      "El alma encuentra paz cuando comprende su propósito.",
+      "Nada sucede sin una razón en el camino de la evolución.",
+      "Cada prueba es una lección para el crecimiento espiritual.",
+      "Confía en la sabiduría del universo que habita en ti.",
+      "La respuesta está en el silencio del corazón.",
+    ];
+    const aleatoria = respuestasSimuladas[Math.floor(Math.random() * respuestasSimuladas.length)];
+    setRespuesta(aleatoria);
   };
 
   return (
@@ -48,14 +36,13 @@ export default function Home() {
         />
         <button
           onClick={manejarEnvio}
-          className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition disabled:opacity-50"
-          disabled={cargando}
+          className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
         >
-          {cargando ? "Consultando al alma..." : "Enviar"}
+          Enviar
         </button>
 
         {respuesta && (
-          <div className="mt-6 bg-indigo-50 p-4 rounded-lg border border-indigo-200 text-indigo-900 shadow-inner text-left">
+          <div className="mt-6 bg-indigo-50 p-4 rounded-lg border border-indigo-200 text-indigo-900 shadow-inner">
             <p className="font-semibold mb-1">Respuesta espiritual:</p>
             <p>{respuesta}</p>
           </div>
