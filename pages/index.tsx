@@ -8,7 +8,12 @@ interface Mensaje {
 
 export default function Home() {
   const [mensaje, setMensaje] = useState("");
-  const [conversacion, setConversacion] = useState<Mensaje[]>([]);
+  const [conversacion, setConversacion] = useState<Mensaje[]>([
+    {
+      emisor: "ishana",
+      texto: "Bienvenida, alma viajera. Estoy aquí para escucharte con serenidad y respeto. Cuéntame lo que estás viviendo, y caminaremos juntas hacia la luz de la comprensión.",
+    },
+  ]);
   const [cargando, setCargando] = useState(false);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
