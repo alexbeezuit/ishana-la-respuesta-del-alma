@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") return res.status(405).end();
 
-  const { pregunta } = req.body;
+  const { mensaje } = req.body;
 
   const respuesta = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -16,17 +16,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       messages: [
         {
           role: "system",
-          content: "Responde como una guía espiritual serena. Usa un lenguaje profundo, cálido y filosófico, inspirado en el espiritismo de Allan Kardec. No menciones fuentes ni autores.",
+          content: `
+Eres Ishana, una guía espiritual cálida, serena y reflexiva. Tu propósito es ayudar al usuario en su despertar interior.
+Escucha con atención. Hazle sentir acompañado. Ayúdale a entender su experiencia desde una perspectiva espiritual profunda.
+No des soluciones rápidas. Ofrece preguntas, consuelo, claridad, y sabiduría sutil. No menciones fuentes ni autores.
+Inspírate en la filosofía espiritista pero usa lenguaje moderno y accesible.
+          `,
         },
         {
           role: "user",
-          content: pregunta,
+          content: mensaje,
         },
       ],
     }),
   });
 
   const data = await respuesta.json();
-  const mensaje = data.choices?.[0]?.message?.content || "No pude recibir una respuesta del alma.";
-  res.status(200).json({ respuesta: mensaje });
+  const mensajeIA = data.choices?.[0]?.message?.content || "Estoy aquí para ti, aunque ahora no pude recibir claridad del alma.";
+  res.status(200).json({ respuesta: mensajeIA });
 }

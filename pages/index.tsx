@@ -2,12 +2,12 @@ import { useState } from "react";
 import { Star } from "lucide-react";
 
 export default function Home() {
-  const [pregunta, setPregunta] = useState("");
+  const [mensaje, setMensaje] = useState("");
   const [respuesta, setRespuesta] = useState("");
   const [cargando, setCargando] = useState(false);
 
-  const manejarEnvio = async () => {
-    if (!pregunta.trim()) return;
+  const enviarMensaje = async () => {
+    if (!mensaje.trim()) return;
 
     setCargando(true);
     setRespuesta("");
@@ -16,11 +16,11 @@ export default function Home() {
       const res = await fetch("/api/ishana", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pregunta }),
+        body: JSON.stringify({ mensaje }),
       });
 
       const data = await res.json();
-      setRespuesta(data.respuesta || "No recibí respuesta del alma.");
+      setRespuesta(data.respuesta || "No recibí claridad del alma en este momento.");
     } catch (error) {
       setRespuesta("No pude conectar con la sabiduría del alma.");
     } finally {
@@ -35,26 +35,25 @@ export default function Home() {
           <Star className="h-10 w-10 text-yellow-500 animate-bounce" />
         </div>
         <h1 className="text-4xl font-bold text-indigo-700 mb-2">Ishana</h1>
-        <p className="text-gray-600 italic mb-6">La Respuesta del Alma</p>
+        <p className="text-gray-600 italic mb-6">Estoy aquí para escucharte... cuéntame lo que estás viviendo</p>
 
-        <input
-          type="text"
-          placeholder="Escribe tu pregunta desde el corazón..."
-          className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-300 text-center"
-          value={pregunta}
-          onChange={(e) => setPregunta(e.target.value)}
+        <textarea
+          placeholder="Escribe tu situación desde el corazón..."
+          className="w-full h-32 p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-300 text-center"
+          value={mensaje}
+          onChange={(e) => setMensaje(e.target.value)}
         />
         <button
-          onClick={manejarEnvio}
+          onClick={enviarMensaje}
           className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition disabled:opacity-50"
           disabled={cargando}
         >
-          {cargando ? "Consultando al alma..." : "Enviar"}
+          {cargando ? "Reflexionando contigo..." : "Enviar"}
         </button>
 
         {respuesta && (
-          <div className="mt-6 bg-indigo-50 p-4 rounded-lg border border-indigo-200 text-indigo-900 shadow-inner text-left">
-            <p className="font-semibold mb-1">Respuesta espiritual:</p>
+          <div className="mt-6 bg-indigo-50 p-4 rounded-lg border border-indigo-200 text-indigo-900 shadow-inner text-left whitespace-pre-line">
+            <p className="font-semibold mb-1">Ishana te responde:</p>
             <p>{respuesta}</p>
           </div>
         )}
