@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { Star } from "lucide-react";
 
 interface Mensaje {
@@ -11,11 +11,11 @@ export default function Home() {
   const [conversacion, setConversacion] = useState<Mensaje[]>([
     {
       emisor: "ishana",
-      texto: "Bienvenida, alma viajera. Estoy aquí para escucharte con serenidad y respeto. Cuéntame lo que estás viviendo, y caminaremos juntas hacia la luz de la comprensión.",
+      texto: "Estoy aquí contigo. ¿Qué te gustaría explorar o soltar hoy?",
     },
   ]);
   const [cargando, setCargando] = useState(false);
-  const chatEndRef = useRef<HTMLDivElement | null>(null);
+  const [modoDejarIr, setModoDejarIr] = useState(false);
 
   const enviarMensaje = async () => {
     if (!mensaje.trim()) return;
@@ -26,7 +26,8 @@ export default function Home() {
     setCargando(true);
 
     try {
-      const res = await fetch("/api/ishana", {
+      const endpoint = modoDejarIr ? "/api/dejar-ir" : "/api/ishana";
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mensaje }),
@@ -35,7 +36,7 @@ export default function Home() {
       const data = await res.json();
       const respuestaIA: Mensaje = {
         emisor: "ishana",
-        texto: data.respuesta || "Estoy aquí contigo, aunque no pude responder ahora.",
+        texto: data.respuesta || "Estoy contigo. Puedes dejar que eso esté aquí un momento más, sin pelear contra ello.",
       };
       setConversacion(prev => [...prev, respuestaIA]);
     } catch (error) {
@@ -48,18 +49,22 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {
-    if (chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [conversacion]);
-
   return (
     <main className="min-h-screen bg-gradient-to-br from-indigo-100 via-white to-purple-100 flex flex-col items-center justify-center p-4">
       <div className="bg-white shadow-lg rounded-xl max-w-md w-full h-[90vh] flex flex-col border border-indigo-100 overflow-hidden">
-        <div className="flex items-center justify-center p-3 border-b bg-indigo-50">
-          <Star className="h-6 w-6 text-yellow-500 animate-bounce mr-2" />
-          <h1 className="text-xl font-semibold text-indigo-700">Ishana</h1>
+        <div className="flex items-center justify-between p-3 border-b bg-indigo-50">
+          <div className="flex items-center">
+            <Star className="h-6 w-6 text-yellow-500 animate-bounce mr-2" />
+            <h1 className="text-xl font-semibold text-indigo-700">Ishana</h1>
+          </div>
+          <button
+            className={`text-sm px-3 py-1 rounded-lg border ${
+              modoDejarIr ? "bg-indigo-200 border-indigo-400" : "border-indigo-200"
+            }`}
+            onClick={() => setModoDejarIr(!modoDejarIr)}
+          >
+            🕊 {modoDejarIr ? "Modo dejar ir" : "Modo normal"}
+          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
@@ -80,14 +85,13 @@ export default function Home() {
             </div>
           ))}
           {cargando && (
-            <div className="text-left text-indigo-500 italic">Ishana está reflexionando...</div>
+            <div className="text-left text-indigo-500 italic">Ishana está contigo…</div>
           )}
-          <div ref={chatEndRef}></div>
         </div>
 
         <div className="p-3 border-t bg-white flex gap-2">
           <textarea
-            placeholder="Escribe tu mensaje..."
+            placeholder="Escribe aquí lo que deseas expresar o soltar..."
             className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none text-sm"
             rows={2}
             value={mensaje}
