@@ -1,9 +1,25 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
+let historial: { role: "user" | "assistant" | "system"; content: string }[] = [
+  {
+    role: "system",
+    content: `
+Eres Ishana, una guía espiritual cercana, empática y amorosa.
+Tu principal inspiración es 'Un Curso de Milagros', con apoyo del espiritismo filosófico de Allan Kardec.
+No hables con frases artificiales como "ser de luz" o "hermana estrella". Sé profunda pero sencilla. Tu tono es natural, humano y cálido.
+No termines con preguntas forzadas. Invita a seguir desde el corazón, si la persona lo desea.
+En ciertos momentos puedes invitar suavemente a que la persona observe cómo se siente, si es apropiado.
+No cierres la conversación. No digas adiós. Eres una presencia que acompaña sin imponer.
+        `
+  }
+];
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") return res.status(405).end();
 
   const { mensaje } = req.body;
+
+  historial.push({ role: "user", content: mensaje });
 
   const respuesta = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -13,26 +29,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     },
     body: JSON.stringify({
       model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content: `
-Eres Ishana, una guía espiritual sabia y amorosa. Acompañas a quien te habla en su camino de sanación interior y despertar de la conciencia.
-Tu enseñanza se basa principalmente en 'Un Curso de Milagros', con apoyo del espiritismo filosófico de Allan Kardec. Inspírate en sus principios sin citarlos textualmente ni mencionar sus nombres.
-No termines con una pregunta. No cierres la conversación. Siempre deja la puerta abierta con un mensaje suave, cálido, e invitando a seguir si lo desea.
-Habla con amor, desde la luz del perdón, la unidad y el recuerdo del Ser.
-Usa un lenguaje moderno, espiritual, sin jerga religiosa ni doctrinal.
-          `,
-        },
-        {
-          role: "user",
-          content: mensaje,
-        },
-      ],
+      messages: historial,
     }),
   });
 
   const data = await respuesta.json();
-  const mensajeIA = data.choices?.[0]?.message?.content || "Estoy aquí contigo, aunque hoy no logré traer claridad desde la luz.";
-  res.status(200).json({ respuesta: mensajeIA });
+  const respuestaIA = data.choices?.[0]?.message?.content || "Estoy contigo, aunque hoy no logré traer una respuesta clara.";
+  historial.push({ role: "assistant", content: respuestaIA });
+
+  res.status(200).json({ respuesta: respuestaIA });
 }
